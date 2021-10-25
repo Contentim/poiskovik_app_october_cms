@@ -1,0 +1,6 @@
+plugin:
+    name: 'contentim.formsender::lang.plugin.name'
+    description: 'contentim.formsender::lang.plugin.description'
+    author: contentim
+    icon: oc-icon-adjust
+    homepage: ''

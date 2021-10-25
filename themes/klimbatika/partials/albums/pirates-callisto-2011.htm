@@ -1,0 +1,55 @@
+description = "pirates-callisto-2011"
+==
+<div uk-grid class="uk-grid-collapse uk-child-width-1-1@s uk-margin uk-grid uk-flex-middle">
+	<div class="uk-card-media-left uk-first-column uk-task__article">
+		<div class="" uk-navbar>
+			<div class="uk-navbar-left">
+				<h2>Пираты Каллисто <span class="uk-label">2011</span></h2>
+			</div>
+			<div class="uk-navbar-right">
+				<a href="https://yadi.sk/d/8UfSCI4oHYWHaA" class="uk-button uk-button-primary uk-link-download"><span uk-icon="icon: download"></span> Скачать</a>
+			</div>
+		</div>
+		<div id="pirates-callisto-2011"></div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function(){
+		const apFirst = new APlayer({
+			container: document.getElementById('pirates-callisto-2011'),
+			mini: false,
+			autoplay: false,
+			audio: [
+				{
+					name: 'Гонки Вокруг Юпитера',
+					artist: 'Климбатика',
+					url: '/songs/pirates-callisto-2011/03. Гонки Вокруг Юпитера.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+				{
+					name: 'Альфа-Центавра',
+					artist: 'Климбатика',
+					url: '/songs/pirates-callisto-2011/04. Альфа-Центавра.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+				{
+					name: 'Каллисто',
+					artist: 'Климбатика',
+					url: '/songs/pirates-callisto-2011/06. Каллисто.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+
+				
+			]
+		});
+
+	});
+
+</script>

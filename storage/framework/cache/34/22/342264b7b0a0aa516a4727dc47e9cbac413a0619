@@ -1,0 +1,31 @@
+1635173803a:1:{s:16:"remove_image.htm";a:6:{s:8:"fileName";s:16:"remove_image.htm";s:7:"content";s:710:"[viewBag]
+==
+<input id="path_img" name="path_img" value="{{ path_img }}" type="hidden">
+<button data-request="onDelete" data-request-success="removeImage(data); console.log(data)" data-request-confirm="Вы уверены, что хотите удалить фотографию?">Удалить фото</button>
+
+<script>
+    function removeImage(){
+        if(document.querySelector("#upload__img img")){
+            document.querySelector("#upload__img img").remove();
+            document.querySelector("#remove_image").style.display = "none";
+            document.querySelector("#upload_img").style.display = "flex";
+
+            localStorage.removeItem("imgAd");
+        }
+    }
+
+</script>";s:5:"mtime";i:1633250980;s:6:"markup";s:697:"<input id="path_img" name="path_img" value="{{ path_img }}" type="hidden">
+<button data-request="onDelete" data-request-success="removeImage(data); console.log(data)" data-request-confirm="Вы уверены, что хотите удалить фотографию?">Удалить фото</button>
+
+<script>
+    function removeImage(){
+        if(document.querySelector("#upload__img img")){
+            document.querySelector("#upload__img img").remove();
+            document.querySelector("#remove_image").style.display = "none";
+            document.querySelector("#upload_img").style.display = "flex";
+
+            localStorage.removeItem("imgAd");
+        }
+    }
+
+</script>";s:4:"code";N;s:7:"viewBag";a:0:{}}}

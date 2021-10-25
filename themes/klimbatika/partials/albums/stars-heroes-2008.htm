@@ -1,0 +1,77 @@
+description = "stars-heroes-2008"
+==
+<div uk-grid class="uk-grid-collapse uk-child-width-1-1@s uk-margin uk-grid uk-flex-middle">
+	<div class="uk-card-media-left uk-first-column uk-task__article">
+		<div class="" uk-navbar>
+			<div class="uk-navbar-left">
+				<h2>Звездные Герои <span class="uk-label">2008</span></h2>
+			</div>
+			<div class="uk-navbar-right">
+				<a href="https://yadi.sk/d/4qgH-dzudwO_iQ" class="uk-button uk-button-primary uk-link-download"><span uk-icon="icon: download"></span> Скачать</a>
+			</div>
+		</div>
+		<div id="stars-heroes-2008"></div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function(){
+		const apFirst = new APlayer({
+			container: document.getElementById('stars-heroes-2008'),
+			mini: false,
+			autoplay: false,
+			audio: [
+				{
+					name: 'Герои',
+					artist: 'Климбатика',
+					url: '/songs/stars-heroes-2008/01. Герои.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+				{
+					name: 'Космические Школьники',
+					artist: 'Климбатика',
+					url: '/songs/stars-heroes-2008/04. Космические Школьники.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+				{
+					name: 'Холодные Звезды',
+					artist: 'Климбатика',
+					url: '/songs/stars-heroes-2008/07. Холодные Звезды.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+				{
+					name: 'Сатурн Зовет Тебя',
+					artist: 'Климбатика',
+					url: '/songs/stars-heroes-2008/09. Сатурн Зовет Тебя.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+				{
+					name: 'Save Our Souls',
+					artist: 'Климбатика',
+					url: '/songs/stars-heroes-2008/13. Save Our Souls.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+				{
+					name: 'Сатурн Зовёт Тебя (re-master)',
+					artist: 'Климбатика',
+					url: '/songs/stars-heroes-2008/14. Киндер-Рок - Сатурн Зовёт Тебя (re-master)!!!ПЕРЕСВЕДЕНАЯ!!!.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+			]
+		});
+
+	});
+
+</script>

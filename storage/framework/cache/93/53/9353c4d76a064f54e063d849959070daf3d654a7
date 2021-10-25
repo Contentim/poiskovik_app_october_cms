@@ -1,0 +1,18 @@
+1635173803a:1:{s:15:"maintenance.htm";a:11:{s:8:"fileName";s:15:"maintenance.htm";s:7:"content";s:430:"title = "Режим обслуживания"
+url = "/maintenance"
+layout = "default"
+is_hidden = 0
+robot_index = "noindex"
+robot_follow = "nofollow"
+==
+<div class="jumbotron">
+    <div class="container">
+        <h1>Сайт находится в разработке</h1>
+        <p>Прежположительный запуск - первые числа апреля (а может и раньше)</p>
+    </div>
+</div>";s:5:"mtime";i:1633250980;s:6:"markup";s:277:"<div class="jumbotron">
+    <div class="container">
+        <h1>Сайт находится в разработке</h1>
+        <p>Прежположительный запуск - первые числа апреля (а может и раньше)</p>
+    </div>
+</div>";s:4:"code";N;s:5:"title";s:35:"Режим обслуживания";s:3:"url";s:12:"/maintenance";s:6:"layout";s:7:"default";s:9:"is_hidden";s:1:"0";s:11:"robot_index";s:7:"noindex";s:12:"robot_follow";s:8:"nofollow";}}

@@ -1,0 +1,21 @@
+1635173803a:1:{s:15:"site/footer.htm";a:6:{s:8:"fileName";s:15:"site/footer.htm";s:7:"content";s:373:"[viewBag]
+==
+<div class="uk-container uk-container-center">
+	<div class="uk-child-width-expand@s uk-text-center" uk-grid>
+		<div>
+			<div class="uk-card uk-card-default uk-card-body">
+			    <p class="muted credit">&copy; 2021 - {{ "now"|date("Y") }} <a href="//contentim.ru">Ivan Goncharenko (Contentim) Russia, Voronezh</a></p>
+			</div>
+		</div>
+
+	</div>
+</div>";s:5:"mtime";i:1633250980;s:6:"markup";s:360:"<div class="uk-container uk-container-center">
+	<div class="uk-child-width-expand@s uk-text-center" uk-grid>
+		<div>
+			<div class="uk-card uk-card-default uk-card-body">
+			    <p class="muted credit">&copy; 2021 - {{ "now"|date("Y") }} <a href="//contentim.ru">Ivan Goncharenko (Contentim) Russia, Voronezh</a></p>
+			</div>
+		</div>
+
+	</div>
+</div>";s:4:"code";N;s:7:"viewBag";a:0:{}}}

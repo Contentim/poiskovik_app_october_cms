@@ -1,0 +1,106 @@
+title = "home-dev"
+url = "/dev"
+layout = "dev"
+is_hidden = 0
+robot_index = "noindex"
+robot_follow = "nofollow"
+
+[blogCategories]
+slug = "{{ :slug }}"
+displayEmpty = 1
+categoryPage = "blog/category"
+
+[blogPosts]
+pageNumber = "{{ :page }}"
+categoryFilter = "{{ :slug }}"
+postsPerPage = 10
+noPostsMessage = "Записей не найдено"
+sortOrder = "published_at desc"
+categoryPage = "blog/category"
+postPage = "blog/post"
+==
+<!--CHAT - Блок расположения чата. (тестируется) -->
+<div id="my_chat" hidden></div>
+<!--END CHAT-->
+
+
+{% component 'blogCategories' %}
+
+{% component 'blogPosts' %}
+
+
+<!--TABLE - Блок расположения стола заказов. -->
+<b>Стол заказов</b> (в очереди <b class=my_table_turn>0</b>)<br><br>
+<style>#my_table_on, #my_table_auto {display:none;}</style>
+<div id=my_table_off>Сейчас заказы не принимаются.</div>
+<div id=my_table_auto>
+	<a href="https://myradio24.com/?to=table&port=klimbatika" target=_blank><input type=button value="Заказать музыку к исполнению"></a>
+</div>
+<div id=my_table_on>
+	<form id=my_table_form action="" method=post accept-charset="UTF-8">	
+		<input type=text id=my_table_from maxlength=30 value="" placeholder="От кого*">
+		<input type=text id=my_table_for maxlength=30 value="" placeholder="Для кого">
+		<br>
+		<input type=text id=my_table_artist maxlength=50 value="" placeholder="Исполнитель*">
+		<input type=text id=my_table_song maxlength=50 value="" placeholder="Название трека*">
+		<br>
+		<textarea id=my_table_comment cols=50 rows=3 maxlength=500 placeholder="Ваш комментарий"></textarea><br>
+		* - поля обязательные для заполнения<br>
+		<input type=submit value="Заказать музыку к исполнению"></td></tr>
+	</form>
+</div><br>
+<!--END TABLE-->
+
+<!--JS - Функция для детальной настройки обновляемой информации. -->
+<script>
+var my_init_updateinfo=function(info) {
+	//ОБНОВИМ название и кол-во слушателей в плеере ENERGY
+	if(info.song!=window.my_lastsong) { my_lastsong=info.song; $("#my_song").html("<marquee scrollamount=1 scrolldelay=50>"+info.song+"</marquee>");}
+	if(info.listeners>0) $("#my_listeners").html("слушателей: "+info.listeners);
+	//ОТОБРАЗИМ стол заказов, если включен (иначе скроем)
+	if($("#my_table_on").length) {
+		$("#my_table_turn, .my_table_turn").html(info.turntable);
+		$("#my_table_off").css('display', (info.enabletable==0?"block":"none") );	
+		$("#my_table_on").css('display', (info.enabletable==1?"block":"none") );	
+		$("#my_table_auto").css('display', (info.enabletable==2?"block":"none") );
+	}
+	//ОБНОВИМ информационные блоки
+	info.isonline="<font color=red>оффлайн</font>"; 
+	if(info.online==1) info.isonline="<font color=green>онлайн</font>"; 
+	info.nextsong=info.nextsongs[0];
+	info.htmlimg="<img src=//myradio24.com/"+info.img+" width=300 border=0>";
+	info.htmllogo=""; if(info.logo) info.htmllogo="<img src='//myradio24.com/"+info.logo+"'>";
+	info.htmlavatar=""; if(window.my_avatars && Array.isArray(my_avatars)) { if(my_avatars[info.djname]) info.htmlavatar=my_avatars[info.djname]; else if(my_avatars['']) info.htmlavatar=my_avatars['']; }
+	//рейтинг ведущих
+	var rank=info.rank; var htmlrank="";
+	if(rank && rank.length>0) {rank.sort(function(a,b) {return b[1]-a[1];}); var htmlrank="<table style='min-width:500px;'><tr><td>Ведущий</td><td>Рейтинг</td><td>Вещаний</td><td>Онлайн</td></tr>"; for(var i=0;i<rank.length;i++) {htmlrank+="<tr><td>DJ "+rank[i][0]+"</td><td align=center>"+rank[i][1]+"</td><td align=center>"+rank[i][3]+"</td><td align=right>"+rank[i][2]+" часов</td></tr>";} htmlrank+="</table>";}
+	else htmlrank="Ничего не найдено.";
+	info.htmlrank=htmlrank;
+	//последние песни
+	var songs=info.songs; var htmlsongs=""; 
+	//console.dir(songs);
+	if(songs && songs.length>0) {for(var i=0;i<songs.length;i++) {htmlsongs="<tr><td>"+songs[i][0]+" - "+songs[i][1]+"</td></tr>"+htmlsongs;} htmlsongs="<table style='min-width:500px;'>"+htmlsongs+"</table>";}
+	else htmlsongs="Ничего не найдено.";
+	info.htmlsongs=htmlsongs;
+	//произведем замену переменных и выведем содержимое информера
+	var objs=document.querySelectorAll(".my_info"); if(!objs.length) return; 
+	if(!window.my_infohtml) my_infohtml={}; 
+	for(var k=0;k<objs.length; k++) {
+		if(!my_infohtml[k]) {my_infohtml[k]=objs[k].innerHTML; objs[k].style.visibility="visible";}
+		var html=my_infohtml[k];
+		for(var i in info) {html=html.replace(new RegExp("%"+i+"%","g"),info[i]);}
+		objs[k].innerHTML=html;
+	}
+}
+</script>
+<!--END JS-->
+
+<!--Этот скрипт должен располагаться в самом низу после всех блоков и не должен повторяться на странице. -->
+<script src="//myradio24.com/player/player.js?v3.14" data-port="klimbatika" data-interval=15></script>
+
+
+
+<h1 class="uk-article-title">Сайлент Хилл и другие</h1>
+<hr class="uk-divider-small">
+
+{%partial 'dev/playlist' %}

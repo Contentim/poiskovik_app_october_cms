@@ -1,0 +1,53 @@
+description = "wind-of-change-2008"
+==
+<div uk-grid class="uk-grid-collapse uk-child-width-1-1@s uk-margin uk-grid uk-flex-middle">
+	<div class="uk-card-media-left uk-first-column uk-task__article">
+		<div class="" uk-navbar>
+			<div class="uk-navbar-left">
+				<h2>Ветер перемен <span class="uk-label">2008</span></h2>
+			</div>
+			<div class="uk-navbar-right">
+				<a href="https://yadi.sk/d/VP-E6yzDuCXNLw" class="uk-button uk-button-primary uk-link-download"><span uk-icon="icon: download"></span> Скачать</a>
+			</div>
+		</div>
+		<div id="wind-of-change-2008"></div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function(){
+		const apFirst = new APlayer({
+			container: document.getElementById('wind-of-change-2008'),
+			mini: false,
+			autoplay: false,
+			audio: [
+				{
+					name: 'Песенка Заграничных Музыкантов',
+					artist: 'Климбатика',
+					url: '/songs/wind-of-change-2008/02. Песенка Заграничных Музыкантов.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+				{
+					name: 'Бьют Часы на Старой Башне',
+					artist: 'Климбатика',
+					url: '/songs/wind-of-change-2008/04. Бьют Часы на Старой Башне.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+				{
+					name: 'Песенка Страхов',
+					artist: 'Климбатика',
+					url: '/songs/wind-of-change-2008/10. Песенка Страхов.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+					theme: '#ebd0c2'
+				},
+			]
+		});
+
+	});
+
+</script>

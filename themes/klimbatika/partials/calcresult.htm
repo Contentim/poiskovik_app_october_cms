@@ -1,0 +1,17 @@
+[viewBag]
+==
+<input id="path_img" name="path_img" value="{{ path_img }}" type="hidden">
+<button data-request="onDelete" data-request-success="removeImage(data); console.log(data)" data-request-confirm="Вы уверены, что хотите удалить фотографию?">Удалить фото</button>
+
+<script>
+    function removeImage(){
+        if(document.querySelector("#upload__img img")){
+            document.querySelector("#upload__img img").remove();
+            document.querySelector("#remove_image").style.display = "none";
+            document.querySelector("#upload_img").style.display = "flex";
+
+            localStorage.removeItem("imgAd");
+        }
+    }
+
+</script>

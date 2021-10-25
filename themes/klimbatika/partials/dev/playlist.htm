@@ -1,0 +1,170 @@
+==
+<div uk-grid class="uk-grid-collapse uk-child-width-1-1@s uk-margin uk-grid uk-flex-middle">
+	<div class="uk-card-media-left uk-first-column uk-task__article">
+		<div class="" uk-navbar>
+			<div class="uk-navbar-left">
+				<h2>Silent Hill <span class="uk-label">сборник</span></h2>
+			</div>
+		</div>
+		<div id="dev-playlist"></div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function(){
+		const apDev = new APlayer({
+			container: document.getElementById('dev-playlist'),
+			mini: false,
+			storageName: 'aplayer-setting',
+			autoplay: false,
+			listMaxHeight: 500,
+			listFolded: false,
+			storageName: 'aplayer-setting',
+			audio: [
+				{
+					name: 'Silent_Hill',
+					artist: 'SH 1',
+					url: '/songs/test/Silent_Hill.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Waiting_For_You.mp3',
+					artist: 'SH 2',
+					url: '/songs/test/Waiting_For_You.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Your_Rain.mp3',
+					artist: 'SH 3',
+					url: '/songs/test/Your_Rain.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Forest.mp3',
+					artist: 'SH 4',
+					url: '/songs/test/Forest.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Melancholy_Requiem.mp3',
+					artist: 'SH 5',
+					url: '/songs/test/Melancholy_Requiem.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Room_of_Angel.mp3',
+					artist: 'SH 6',
+					url: '/songs/test/Room_of_Angel.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'She.mp3',
+					artist: 'SH 7',
+					url: '/songs/test/She.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Silent_Hill_3_-_08_Please_love_me.mp3',
+					artist: 'SH',
+					url: '/songs/test/Silent_Hill_3_-_08_Please_love_me.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Silent_Hill_3_-_12_letter_-_from_the_lost_days.mp3',
+					artist: 'SH',
+					url: '/songs/test/Silent_Hill_3_-_12_letter_-_from_the_lost_days.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Silent_Hill_3_-_25_I_want_love_(Studio_Mix).mp3',
+					artist: 'SH',
+					url: '/songs/test/Silent_Hill_3_-_25_I_want_love_(Studio_Mix).mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Silent_Hill_SoundTrack_01.mp3',
+					artist: 'SH',
+					url: '/songs/test/Silent_Hill_SoundTrack_01.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Silent_Hill_SoundTrack_02.mp3',
+					artist: 'SH',
+					url: '/songs/test/Silent_Hill_SoundTrack_02.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Track1.mp3',
+					artist: 'SH',
+					url: '/songs/test/Track1.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'Track2.mp3',
+					artist: 'SH',
+					url: '/songs/test/Track2.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'silent_hill_2_-_06_-_promise_(reprise).mp3',
+					artist: 'SH',
+					url: '/songs/test/silent_hill_2_-_06_-_promise_(reprise).mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				{
+					name: 'silent_hill_2_-_30_-_promise.mp3',
+					artist: 'SH',
+					url: '/songs/test/silent_hill_2_-_30_-_promise.mp3',
+					cover: '/storage/app/media/music.png',
+					lrc: 'lrc1.lrc',
+				},
+				
+			]
+		});
+		
+		/*
+		$('.track__title').text(apDev.title());
+		
+		
+		$('.player-controls__btn_prev').click(function(){
+		    apDev.skipBack();
+		    $('.track__title').text(apDev.title());
+		});
+		
+		$('.player-controls__btn_play').click(function(){
+		    apDev.toggle();
+		    $('.track__title').text(apDev.title());
+		});
+		
+		$('.stop_list').click(function(){
+		    apDev.pause();
+		    $('.track__title').text(apDev.title());
+		});
+		
+
+		$('.player-controls__btn_next').click(function(){
+		    apDev.skipForward();
+		    $('.track__title').text(apDev.title());
+		});
+		*/
+
+
+
+	});
+
+</script>

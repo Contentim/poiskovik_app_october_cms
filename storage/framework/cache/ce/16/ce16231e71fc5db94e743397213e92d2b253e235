@@ -1,0 +1,1566 @@
+1635173803a:1:{s:18:"home_developer.htm";a:11:{s:8:"fileName";s:18:"home_developer.htm";s:7:"content";s:26364:"title = "Главная _developer"
+url = "/developer"
+layout = "dev"
+is_hidden = 0
+robot_index = "noindex"
+robot_follow = "nofollow"
+==
+<?php
+use RainLab\Blog\Models\Post;
+use System\Models\File;
+use Illuminate\Support\Facades\Storage;
+
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
+use Barryvdh\Snappy\Facades\SnappyImage as SnappyImage;
+
+function onStart()
+{
+
+    /*$options = array(
+    '--dpi 300',
+    'no-outline',
+    '--image-quality 10',);
+
+    $image = new Image('http://bl.ocks.org/mbostock/raw/7555321/', $options);
+    $image->saveAs('output.png');*/
+
+    $today = date("Ymd_His");
+
+    $html = '
+
+    <!doctype html>
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <link rel="stylesheet"  href="http://localhost/bundles/mybundle/css/pdf.css" />
+            <style>
+                /* тут стили, которые сработают на генерации изображения */
+            </style>
+        </head>
+        <body>
+            <h1>Это тестовый контейнер на русском языке</h1>
+        </body>
+    </html>
+
+    ';
+
+    $html = '<h1>sdfsdfsdf</h1>';
+
+    /* PDF */
+    /*
+    $pdf = App::make('snappy.pdf.wrapper');
+    $pdf->loadHTML($html)->setPaper('a4')->setOrientation('landscape')->setOption('margin-bottom', 0);
+    return $pdf->download('invoice.pdf');*/
+
+    /* IMAGE */
+    // quality 100
+
+    /*
+    SnappyImage::loadHTML($html)
+    ->setOption('width', 1240)
+    ->setOption('height', 876)
+    ->save($today.'.jpg');
+    */
+
+}
+
+function onDownload() {
+
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+        $protocol = 'https://';
+    } else {
+        $protocol = 'http://';
+    }
+
+    $data = post();
+
+    $today = date("Ymd_His");
+
+    $html = '
+        <!doctype html>
+        <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <style type = "text/css">
+
+                #creator font {
+                    line-height: normal;
+                    font-family: Helvetica;
+                }
+                #creator-form div.editor > div:nth-child(1),
+                #creator-form div.footer > div:nth-child(1){
+                    display:none;
+                }
+                #creator-form div.editor > div:nth-child(2),
+                #creator-form div.footer > div:nth-child(2){
+                    border: none !important;
+                }
+                #creator-form div.footer {
+                    margin: 0;
+                    position: relative;
+                    top: -35px;
+                }
+                .nicEdit-main {
+                    width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 18px;
+                }
+                .nicEdit-panelContain {
+                    display:none;
+                }
+                #last-name {
+                    font-size: 70px;
+                    text-transform: uppercase;
+                    font-weight: 700;
+                    padding: 0;
+                    position: relative;
+                    top: -15px;
+                    left: -4px;
+                    margin: 0;
+                    height: 62px;
+                    color: #000;
+                    width: 100%;
+                    border: none;
+                }
+                #name-age {
+                    font-size: 24px;
+                    text-transform: uppercase;
+                    font-weight: 700;
+                    padding: 0;
+                    text-align: left;
+                    font-family: "DejaVu Sans";
+                    position: relative;
+                    top: -2px;
+                    left: 0;
+                    margin: 0;
+                    height: 32px;
+                    color: #000;
+                    width: 100%;
+                    border: 1px solid;
+                    line-height: 30px;
+
+                    border: none;
+                }
+            </style>
+        </head>
+        <body>
+        '.$data['html'].'
+        </body>
+        </html>
+    ';
+
+    SnappyImage::loadHTML($html)->setOption('width', 1240)->setOption('height', 876)->save($_SERVER['DOCUMENT_ROOT']. '/storage/app/media/'.$today.'.jpg');
+
+    return [
+        'data' => $protocol . $_SERVER['HTTP_HOST'].'/storage/app/media/'.$today.'.jpg'
+    ];
+
+}
+
+function onSubmit()
+{
+    $validator = Validator::make(
+        $form = Input::all(), [
+            'image' => 'required|image',
+            //'size' => 'required|integer|min:0|max:500',
+        ]
+    );
+
+    if ($validator->fails()) {
+        throw new ValidationException($validator);
+    }
+
+    $file = (new File())->fromPost($form['image']);
+    
+
+    // 386 * 464
+    // $form['size']
+    $this['path_img'] = $file->getThumb(386, 464);
+
+    return [
+        '#object' => '<pre>'.json_encode($file).'</pre>',
+        //'#dir' => '<pre>'.$this['dir'].'</pre>',
+        '#img-wrapp' => '<div id="img" style="background: url('.$file->getThumb($form['size'], $form['size']).'); width: 180px; height: 180px;"></div>',
+        'src' => '"'.$file->getThumb($form['size'], $form['size']).'"',
+        '#upload__img' => '<img src="'.$file->getThumb($form['size'], $form['size']).'" />'
+    ];
+}
+
+
+function onDelete(){
+    
+    $data = post();
+    
+    $path_img = $data['path_img'];
+    $server_document_root = $_SERVER['DOCUMENT_ROOT'];
+    
+    preg_match_all('/public\/((.*)\/*)\/(.*)\.(jpg|png|jpeg)/', $path_img, $matches, PREG_PATTERN_ORDER);
+    
+    $path_dir = $server_document_root . '/storage/app/uploads/public/' . $matches[1][0] . '/';
+    
+    $value1 = Input::get('value1');
+    
+    $pattern = '/(http|https):\/\/(.*?)\//i';
+    $value1 = preg_replace($pattern, '', $value1);
+    
+    $pattern = '/((http|https):\/\/(.*?)\/)(.*)public\/(\d*)\/(.*)/i';
+    //preg_match_all($pattern, $value1, $matches);
+    
+    //$path = '/home/l/lutsyi1l/skynd.ru/public_html/storage/app/uploads/public/603/';
+    
+    $this::removeDirectory($path_dir);
+    
+       
+    return [
+        //'path_dir' => $path_dir,
+        //'path_dir' => $path_dir,
+        //'totalProjects' => $matches[5], // директория
+        //'path' => $str,
+        'path_img' => $path_img,
+        'server_document_root' => $server_document_root, // /home/l/lutsyi1l/contentim.ru/public_html
+    ];
+}
+
+function removeDirectory($path){
+     // если путь существует и это папка
+    if ( file_exists( $path ) AND is_dir( $path ) ) {
+        // открываем папку
+        $dir = opendir($path);
+        while ( false !== ( $element = readdir( $dir ) ) ) {
+          // удаляем только содержимое папки
+          if ( $element != '.' AND $element != '..' )  {
+            $tmp = $path . '/' . $element;
+            chmod( $tmp, 0777 );
+           // если элемент является папкой, то
+           // удаляем его используя нашу функцию RDir
+            if ( is_dir( $tmp ) ) {
+             $this::removeDirectory( $tmp );
+           // если элемент является файлом, то удаляем файл
+            } else {
+              unlink( $tmp );
+           }
+         }
+        }
+        // закрываем папку
+        closedir($dir);
+        // удаляем саму папку
+        if ( file_exists( $path ) ) {
+         rmdir( $path );
+        }
+    }
+}
+?>
+==
+<div class="header">
+    <div class="download">
+        <span>Сформировав объявление, нажмите </span>
+        <button
+                data-request-data="html: storageHTML()"
+                data-request="onDownload"
+                data-request-flash
+                data-request-success="console.log(data)"
+                data-request-confirm="Вы уверены, что хотите скачать фотографию?">Скачать изображение *.JPG</button>
+        <input type="hidden" id="html">
+    </div>
+</div>
+
+<div id="creator">
+
+<div id="creator-form" style="
+    height:818px;
+    width: 1240px;
+"><div class="level_1" style="
+    border: 10px solid #ff4040;
+    height: 818px;
+    padding: 10px;
+    width: 1200px;
+">
+    <div class="level_2" style="
+    border: 10px solid #ff4040;
+    height: 97%;
+    padding: 0px 15px;
+    width: 1140px;
+">
+        <div class="content" style="
+    width: 100%;
+    height: 100%;
+">
+            <div class="title font-sans font-extrabold text-center" style="
+    width: 100%;
+    font-size: 4.3em;
+    text-transform: uppercase;
+    line-height: 90px;
+    margin: 0 0 5px;
+    text-align: center;
+    font-weight: 800;
+    font-family: 'DejaVu Sans';
+">Внимание, розыск!</div>
+            <div class="info" style="width: 100%;">
+
+<div class="img" style="
+    width: 380px;
+    height: 458px;
+    border: 3px solid;
+    float: left;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+">
+    
+    <form
+            data-request="onSubmit"
+            data-request-files
+            data-request-flash
+            data-request-update="calcresult: '#remove_image'"
+            data-request-success="visibleRemoveImage(); saveLocalStorage(data); console.log(data)" id="upload_img">
+        
+        <div class="wrapp__info">
+            <div>Размер окна:</div>
+            <div class="size">380 * 458 пикселей</div>
+        </div>        
+        
+        <div class="upload_img_container">
+          <div class="form-group">
+            <label class="label">
+              <i class="material-icons">attach_file</i>
+              <span class="title">Выбрать фото</span>
+                <input type="hidden" name="size" value="465" class="input__file">
+                <input type="file" name="image" accept="image/*" class="input__file">
+            </label>
+          </div>
+        </div>
+        <div class="submit__wrapper">
+            <button type="submit"><i class="icon fa fa-upload"></i> Загрузить</button>
+        </div>
+        
+    </form>
+    
+    <div id="upload__img" style="position: absolute;top: 0;left: 0;"></div>
+    
+    <form id="remove_image">
+        {% partial 'calcresult' %}
+    </form>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+
+            if(localStorage.getItem('last_nameAd')){
+                document.querySelector('#last-name').innerHTML = localStorage.getItem('last_nameAd');
+            }
+
+            if(localStorage.getItem('name_ageAd')){
+                document.querySelector('#name-age').innerHTML = localStorage.getItem('name_ageAd');
+            }
+
+            if(localStorage.getItem('imgAd')){
+                var img = document.createElement("img");
+
+                let imgAd = localStorage.getItem('imgAd');
+                let str = imgAd.replace(/\"*/g,'');
+
+                img.src = str;
+                var src = document.getElementById("upload__img");
+                src.appendChild(img);
+
+                document.getElementById('path_img').value = str;
+
+                document.querySelector('#upload_img').style.display = 'none';
+                document.querySelector('#remove_image').style.display = 'flex';
+            }
+
+            if(localStorage.getItem('textAd')){
+                $('.editor .nicEdit-main').html(localStorage.getItem('textAd'));
+            }
+
+            if(localStorage.getItem('text_footerAd')){
+                $('.footer .nicEdit-main').html(localStorage.getItem('text_footerAd'));
+            }
+
+            document.getElementById("last-name").addEventListener("input", function(e) {
+                localStorage.setItem('last_nameAd',e.target.textContent)
+            }, false);
+
+            document.getElementById("name-age").addEventListener("input", function(e) {
+                localStorage.setItem('name_ageAd',e.target.textContent)
+            }, false);
+
+            document.querySelector('.editor .nicEdit-main').addEventListener("input", function(e) {
+                localStorage.setItem('textAd', e.target.innerHTML)
+            }, false);
+
+            document.querySelector('.footer .nicEdit-main').addEventListener("input", function(e) {
+                localStorage.setItem('text_footerAd', e.target.innerHTML)
+            }, false);
+
+        });
+        function storageHTML(){
+            return document.querySelector('#creator').innerHTML;
+        }
+        function visibleRemoveImage(){
+            document.querySelector('#upload_img').style.display = 'none';
+            document.querySelector('#remove_image').style.display = 'flex';
+        }
+        function saveLocalStorage(data){
+            localStorage.setItem('imgAd', data.src);
+        }
+
+    </script>
+    
+    
+    
+<!-- <img src="https://i.pinimg.com/736x/75/74/16/7574164619ecda8070fb795a52a36ad5.jpg"> -->
+</div> 
+
+<div class="text" style="
+    padding: 0;
+    float: right;
+    width: 735px;
+    margin: 0;
+    position: relative;
+">
+
+    <input type="text" id="last-name" value="ПОКЛОНСКАЯ">
+    <input type="text" id="name-age" value="Екатерина Константиновна, 26 лет">
+
+    <div class="editor">
+        <textarea name="drag_words_paragraph" id="drag_words_paragraph" style="width: 732px !important;"> <!-- 633px -->
+            <div class="item leading-4">Место пропажи:пос. Константиновка, Ярославская обл.</div>
+            <div class="item leading-4">Дата пропажи: 01.01.1999</div>
+            <div class="item leading-4">Одет: Сервисов по созданию случайного текста на основе Lorem Ipsum великое множество, однако все они имеют один существенный недостаток.</div>
+            <div class="item leading-4">Приметы: Набор по созданию руководители в СССР использовали в своих выступлениях заготовленный набор.</div>
+            <div class="item leading-4">Особые приметы: По легенде, всякие депутаты и руководители в СССР использовали в своих выступлениях.</div>
+        </textarea>
+    </div>
+
+
+</div>
+            <div class="clearfix" style="clear: both;"></div>
+            </div>
+
+            <div class="footer" style="width: 100%;margin-top: 57px;position: relative;">
+                <textarea name="drag_words_paragraph_footer" id="drag_words_paragraph_footer" style="width: 100%;">
+                    <div class="item leading-4">Если Вам что-либо известно о местонахождении пропавшего
+                        или есть возможность присоединиться к поискам, просьба обратиться по
+                        телефонам горячей линии.</div>
+                    <div class="item leading-4"><b>Организация/ФИО</b> - 8-999-888-77-66, 8-999-333-22-11, <b>полиция</b> - 112</div>
+                </textarea>
+
+                <!--<div class="contacts-info" style="
+    width: 965px;
+    padding: 0;
+    text-align: left;
+">
+                    <div class="explanation text-black-800 text-xl text-left font-mono leading-6 mb-3" style="
+    font-family: Menlo,Monaco,Consolas,&quot;Liberation Mono&quot;,&quot;Courier New&quot;,monospace;
+    text-align: left;
+    margin-bottom: .5rem;
+    line-height: 1.2rem;
+    font-size: 1.1em;
+">
+                        Если Вам что-либо известно о местонахождении пропавшего
+                        или есть возможность присоединиться к поискам, просьба обратиться по
+                        телефонам горячей линии
+                    </div>
+                    <div class="contacts font-bold text-black-800 text-2xl text-left font-mono leading-6 mb-3" style="
+    text-align: left;
+    margin-bottom: .75rem;
+    line-height: 1.1rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-family: Menlo,Monaco,Consolas,&quot;Liberation Mono&quot;,&quot;Courier New&quot;,monospace;
+">
+                        <span contenteditable="true" class="organization">Организация/ФИО</span> - <span contenteditable="true" class="phones">8-999-888-77-66, 8-999-333-22-11<span>, <span contenteditable="true">полиция - 112</span></span></span>
+                    </div>
+                </div>-->
+
+            </div>
+
+        </div></div></div></div>
+
+</div> <!-- end #creator -->
+
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+<style>
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans ExtraLight'), local('DejaVuSans-ExtraLight'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansextralight.woff2') format('woff2'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansextralight.woff') format('woff'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansextralight.ttf') format('truetype');
+        font-weight: 200;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans'), local('DejaVuSans'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusans.woff2') format('woff2'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusans.woff') format('woff'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusans.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans Oblique'), local('DejaVuSans-Oblique'),
+        url('dejavusansoblique.woff2') format('woff2'),
+        url('dejavusansoblique.woff') format('woff'),
+        url('dejavusansoblique.ttf') format('truetype');
+        font-weight: 400;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans Bold'), local('DejaVuSans-Bold'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansbold.woff2') format('woff2'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansbold.woff') format('woff'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansbold.ttf') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans Bold Oblique'), local('DejaVuSans-BoldOblique'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansboldoblique.woff2') format('woff2'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansboldoblique.woff') format('woff'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansboldoblique.ttf') format('truetype');
+        font-weight: 700;
+        font-style: italic;
+    }
+
+    #creator font {
+        font-family: 'DejaVu Sans';
+        font-size: 18px;
+        line-height: 7px !important;
+        letter-spacing: .004em;
+        font-weight: 400;
+    }
+    #last-name {
+        font-size: 70px;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 3px 0 0 5px;
+        position: relative;
+        top: -6px;
+        left: -4px;
+        margin: 0;
+        height: 62px;
+        color: #111;
+        width: 100%;
+        font-family: 'DejaVu Sans';
+        border: 1px solid #8c3a4d;
+        text-indent: -5px;
+    }
+    #name-age {
+        font-size: 24px;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 0 0 0 4px;
+        text-align: left;
+        font-family: 'DejaVu Sans';
+        position: relative;
+        top: -2px;
+        left: -4px;
+        margin: 0;
+        height: 32px;
+        color: #000;
+        border: 1px solid #8c3a4d;
+        width: 100%;
+        line-height: 30px;
+    }
+
+    /* clearfix */
+    .clearfix:before, .clearfix:after {
+        content: " ";
+        display: table;
+    }
+    .clearfix:after {
+        clear: both;
+    }
+    .clearfix {
+        *zoom: 1;
+    }
+    .header {
+        padding: 15px 0;
+
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-direction: row;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -webkit-flex-wrap: nowrap;
+        -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+        -webkit-justify-content: flex-end;
+        -ms-flex-pack: end;
+        justify-content: flex-end;
+        -webkit-align-content: stretch;
+        -ms-flex-line-pack: stretch;
+        align-content: stretch;
+        -webkit-align-items: center;
+        -ms-flex-align: center;
+        align-items: center;
+    }
+    .header .download {
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-direction: row;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -webkit-flex-wrap: nowrap;
+        -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+        -webkit-justify-content: flex-end;
+        -ms-flex-pack: end;
+        justify-content: flex-end;
+        -webkit-align-content: stretch;
+        -ms-flex-line-pack: stretch;
+        align-content: stretch;
+        -webkit-align-items: center;
+        -ms-flex-align: center;
+        align-items: center;
+    }
+    .header .download span {
+        margin: 0 10px 0 0;
+        font-size: 20px;
+    }
+    .header .download button {
+        background-color: #8c3a4d;
+        color: #fff;
+        padding: 10px 15px;
+        display: block;
+        font-size: 20px;
+        text-transform: uppercase;
+        transition: 0.1s ease-in-out;
+        transition-property: color, background-color;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+    #creator-form div.footer > div:nth-child(2) {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+</style>
+
+<!-- creator -->
+<style>
+.editor {
+    position: relative;
+    top: 30px;
+    text-align: left;
+    margin-left: -10px;
+}
+.nicEdit-main {
+    margin: 0;
+    padding: 4px;
+    line-height: 1.3em;
+}
+.editor .nicEdit-main {width: 735px !important;}
+.footer .nicEdit-main {width: 100% !important;}
+
+#creator-form div.editor > div:nth-child(2) {
+    width: 100% !important;
+    margin: 0 !important;
+}
+#creator-form div.nicEdit-panelContain {
+    position: absolute;
+    top: -25px;
+}
+#creator-form .editor:hover div.nicEdit-panelContain {
+    display: block;
+}
+
+#upload_img {
+    height: 100%;
+    
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.wrapp__info {
+    color: grey;
+    transition: 200ms color;
+    text-align: center;
+    margin: 0 0 10px;
+}
+.wrapp__info .size {
+    font-weight: 600;
+    color: #111;
+}
+.wrapp__info div {
+    margin: 0;
+    line-height: normal;
+}
+.upload_img_container .form-group {padding: 0;margin: 0 0 15px;}
+.upload_img_container input[type=file] {outline:0;opacity:0;pointer-events:none;user-select:none}
+.upload_img_container .label {width:140px;border:2px dashed grey;border-radius:5px;display:block;padding:1.2em;transition:border 300ms ease;cursor:pointer;text-align:center}
+.upload_img_container .label i {display:block;font-size:42px;padding-bottom:16px}
+.upload_img_container .label i, .upload_img_container .label .title {color:grey;transition:200ms color}
+.upload_img_container .label:hover {border:2px solid #000;background: moccasin;}
+.upload_img_container .label:hover i, .upload_img_container .label:hover .title {color:#000}
+
+.submit__wrapper button {
+    color: #555;
+    line-height: normal;
+    width: 183px;
+    margin: auto;
+    border: 2px solid #555;
+    padding: 10px 0;
+    background: transparent;
+}
+.submit__wrapper button:hover {
+    cursor: pointer;
+    background: moccasin;
+}
+
+.input__file {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+}
+
+#remove_image {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: none;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    -webkit-justify-content: flex-end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+    -webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+#remove_image button {
+    display: none;
+    color: #555;
+    line-height: normal;
+    width: 183px;
+    margin: auto;
+    border: 2px solid #555;
+    padding: 10px 0;
+    background: #fff;
+}
+#remove_image:hover button {
+    display: block;
+}
+#remove_image button:hover {
+    cursor: pointer;
+    background: moccasin;
+}
+
+</style>";s:5:"mtime";i:1633250980;s:6:"markup";s:18612:"<div class="header">
+    <div class="download">
+        <span>Сформировав объявление, нажмите </span>
+        <button
+                data-request-data="html: storageHTML()"
+                data-request="onDownload"
+                data-request-flash
+                data-request-success="console.log(data)"
+                data-request-confirm="Вы уверены, что хотите скачать фотографию?">Скачать изображение *.JPG</button>
+        <input type="hidden" id="html">
+    </div>
+</div>
+
+<div id="creator">
+
+<div id="creator-form" style="
+    height:818px;
+    width: 1240px;
+"><div class="level_1" style="
+    border: 10px solid #ff4040;
+    height: 818px;
+    padding: 10px;
+    width: 1200px;
+">
+    <div class="level_2" style="
+    border: 10px solid #ff4040;
+    height: 97%;
+    padding: 0px 15px;
+    width: 1140px;
+">
+        <div class="content" style="
+    width: 100%;
+    height: 100%;
+">
+            <div class="title font-sans font-extrabold text-center" style="
+    width: 100%;
+    font-size: 4.3em;
+    text-transform: uppercase;
+    line-height: 90px;
+    margin: 0 0 5px;
+    text-align: center;
+    font-weight: 800;
+    font-family: 'DejaVu Sans';
+">Внимание, розыск!</div>
+            <div class="info" style="width: 100%;">
+
+<div class="img" style="
+    width: 380px;
+    height: 458px;
+    border: 3px solid;
+    float: left;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+">
+    
+    <form
+            data-request="onSubmit"
+            data-request-files
+            data-request-flash
+            data-request-update="calcresult: '#remove_image'"
+            data-request-success="visibleRemoveImage(); saveLocalStorage(data); console.log(data)" id="upload_img">
+        
+        <div class="wrapp__info">
+            <div>Размер окна:</div>
+            <div class="size">380 * 458 пикселей</div>
+        </div>        
+        
+        <div class="upload_img_container">
+          <div class="form-group">
+            <label class="label">
+              <i class="material-icons">attach_file</i>
+              <span class="title">Выбрать фото</span>
+                <input type="hidden" name="size" value="465" class="input__file">
+                <input type="file" name="image" accept="image/*" class="input__file">
+            </label>
+          </div>
+        </div>
+        <div class="submit__wrapper">
+            <button type="submit"><i class="icon fa fa-upload"></i> Загрузить</button>
+        </div>
+        
+    </form>
+    
+    <div id="upload__img" style="position: absolute;top: 0;left: 0;"></div>
+    
+    <form id="remove_image">
+        {% partial 'calcresult' %}
+    </form>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+
+            if(localStorage.getItem('last_nameAd')){
+                document.querySelector('#last-name').innerHTML = localStorage.getItem('last_nameAd');
+            }
+
+            if(localStorage.getItem('name_ageAd')){
+                document.querySelector('#name-age').innerHTML = localStorage.getItem('name_ageAd');
+            }
+
+            if(localStorage.getItem('imgAd')){
+                var img = document.createElement("img");
+
+                let imgAd = localStorage.getItem('imgAd');
+                let str = imgAd.replace(/\"*/g,'');
+
+                img.src = str;
+                var src = document.getElementById("upload__img");
+                src.appendChild(img);
+
+                document.getElementById('path_img').value = str;
+
+                document.querySelector('#upload_img').style.display = 'none';
+                document.querySelector('#remove_image').style.display = 'flex';
+            }
+
+            if(localStorage.getItem('textAd')){
+                $('.editor .nicEdit-main').html(localStorage.getItem('textAd'));
+            }
+
+            if(localStorage.getItem('text_footerAd')){
+                $('.footer .nicEdit-main').html(localStorage.getItem('text_footerAd'));
+            }
+
+            document.getElementById("last-name").addEventListener("input", function(e) {
+                localStorage.setItem('last_nameAd',e.target.textContent)
+            }, false);
+
+            document.getElementById("name-age").addEventListener("input", function(e) {
+                localStorage.setItem('name_ageAd',e.target.textContent)
+            }, false);
+
+            document.querySelector('.editor .nicEdit-main').addEventListener("input", function(e) {
+                localStorage.setItem('textAd', e.target.innerHTML)
+            }, false);
+
+            document.querySelector('.footer .nicEdit-main').addEventListener("input", function(e) {
+                localStorage.setItem('text_footerAd', e.target.innerHTML)
+            }, false);
+
+        });
+        function storageHTML(){
+            return document.querySelector('#creator').innerHTML;
+        }
+        function visibleRemoveImage(){
+            document.querySelector('#upload_img').style.display = 'none';
+            document.querySelector('#remove_image').style.display = 'flex';
+        }
+        function saveLocalStorage(data){
+            localStorage.setItem('imgAd', data.src);
+        }
+
+    </script>
+    
+    
+    
+<!-- <img src="https://i.pinimg.com/736x/75/74/16/7574164619ecda8070fb795a52a36ad5.jpg"> -->
+</div> 
+
+<div class="text" style="
+    padding: 0;
+    float: right;
+    width: 735px;
+    margin: 0;
+    position: relative;
+">
+
+    <input type="text" id="last-name" value="ПОКЛОНСКАЯ">
+    <input type="text" id="name-age" value="Екатерина Константиновна, 26 лет">
+
+    <div class="editor">
+        <textarea name="drag_words_paragraph" id="drag_words_paragraph" style="width: 732px !important;"> <!-- 633px -->
+            <div class="item leading-4">Место пропажи:пос. Константиновка, Ярославская обл.</div>
+            <div class="item leading-4">Дата пропажи: 01.01.1999</div>
+            <div class="item leading-4">Одет: Сервисов по созданию случайного текста на основе Lorem Ipsum великое множество, однако все они имеют один существенный недостаток.</div>
+            <div class="item leading-4">Приметы: Набор по созданию руководители в СССР использовали в своих выступлениях заготовленный набор.</div>
+            <div class="item leading-4">Особые приметы: По легенде, всякие депутаты и руководители в СССР использовали в своих выступлениях.</div>
+        </textarea>
+    </div>
+
+
+</div>
+            <div class="clearfix" style="clear: both;"></div>
+            </div>
+
+            <div class="footer" style="width: 100%;margin-top: 57px;position: relative;">
+                <textarea name="drag_words_paragraph_footer" id="drag_words_paragraph_footer" style="width: 100%;">
+                    <div class="item leading-4">Если Вам что-либо известно о местонахождении пропавшего
+                        или есть возможность присоединиться к поискам, просьба обратиться по
+                        телефонам горячей линии.</div>
+                    <div class="item leading-4"><b>Организация/ФИО</b> - 8-999-888-77-66, 8-999-333-22-11, <b>полиция</b> - 112</div>
+                </textarea>
+
+                <!--<div class="contacts-info" style="
+    width: 965px;
+    padding: 0;
+    text-align: left;
+">
+                    <div class="explanation text-black-800 text-xl text-left font-mono leading-6 mb-3" style="
+    font-family: Menlo,Monaco,Consolas,&quot;Liberation Mono&quot;,&quot;Courier New&quot;,monospace;
+    text-align: left;
+    margin-bottom: .5rem;
+    line-height: 1.2rem;
+    font-size: 1.1em;
+">
+                        Если Вам что-либо известно о местонахождении пропавшего
+                        или есть возможность присоединиться к поискам, просьба обратиться по
+                        телефонам горячей линии
+                    </div>
+                    <div class="contacts font-bold text-black-800 text-2xl text-left font-mono leading-6 mb-3" style="
+    text-align: left;
+    margin-bottom: .75rem;
+    line-height: 1.1rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-family: Menlo,Monaco,Consolas,&quot;Liberation Mono&quot;,&quot;Courier New&quot;,monospace;
+">
+                        <span contenteditable="true" class="organization">Организация/ФИО</span> - <span contenteditable="true" class="phones">8-999-888-77-66, 8-999-333-22-11<span>, <span contenteditable="true">полиция - 112</span></span></span>
+                    </div>
+                </div>-->
+
+            </div>
+
+        </div></div></div></div>
+
+</div> <!-- end #creator -->
+
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+<style>
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans ExtraLight'), local('DejaVuSans-ExtraLight'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansextralight.woff2') format('woff2'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansextralight.woff') format('woff'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansextralight.ttf') format('truetype');
+        font-weight: 200;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans'), local('DejaVuSans'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusans.woff2') format('woff2'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusans.woff') format('woff'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusans.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans Oblique'), local('DejaVuSans-Oblique'),
+        url('dejavusansoblique.woff2') format('woff2'),
+        url('dejavusansoblique.woff') format('woff'),
+        url('dejavusansoblique.ttf') format('truetype');
+        font-weight: 400;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans Bold'), local('DejaVuSans-Bold'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansbold.woff2') format('woff2'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansbold.woff') format('woff'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansbold.ttf') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans Bold Oblique'), local('DejaVuSans-BoldOblique'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansboldoblique.woff2') format('woff2'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansboldoblique.woff') format('woff'),
+        url('/themes/klimbatika/assets/fonts/djsans/dejavusansboldoblique.ttf') format('truetype');
+        font-weight: 700;
+        font-style: italic;
+    }
+
+    #creator font {
+        font-family: 'DejaVu Sans';
+        font-size: 18px;
+        line-height: 7px !important;
+        letter-spacing: .004em;
+        font-weight: 400;
+    }
+    #last-name {
+        font-size: 70px;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 3px 0 0 5px;
+        position: relative;
+        top: -6px;
+        left: -4px;
+        margin: 0;
+        height: 62px;
+        color: #111;
+        width: 100%;
+        font-family: 'DejaVu Sans';
+        border: 1px solid #8c3a4d;
+        text-indent: -5px;
+    }
+    #name-age {
+        font-size: 24px;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 0 0 0 4px;
+        text-align: left;
+        font-family: 'DejaVu Sans';
+        position: relative;
+        top: -2px;
+        left: -4px;
+        margin: 0;
+        height: 32px;
+        color: #000;
+        border: 1px solid #8c3a4d;
+        width: 100%;
+        line-height: 30px;
+    }
+
+    /* clearfix */
+    .clearfix:before, .clearfix:after {
+        content: " ";
+        display: table;
+    }
+    .clearfix:after {
+        clear: both;
+    }
+    .clearfix {
+        *zoom: 1;
+    }
+    .header {
+        padding: 15px 0;
+
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-direction: row;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -webkit-flex-wrap: nowrap;
+        -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+        -webkit-justify-content: flex-end;
+        -ms-flex-pack: end;
+        justify-content: flex-end;
+        -webkit-align-content: stretch;
+        -ms-flex-line-pack: stretch;
+        align-content: stretch;
+        -webkit-align-items: center;
+        -ms-flex-align: center;
+        align-items: center;
+    }
+    .header .download {
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-direction: row;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -webkit-flex-wrap: nowrap;
+        -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+        -webkit-justify-content: flex-end;
+        -ms-flex-pack: end;
+        justify-content: flex-end;
+        -webkit-align-content: stretch;
+        -ms-flex-line-pack: stretch;
+        align-content: stretch;
+        -webkit-align-items: center;
+        -ms-flex-align: center;
+        align-items: center;
+    }
+    .header .download span {
+        margin: 0 10px 0 0;
+        font-size: 20px;
+    }
+    .header .download button {
+        background-color: #8c3a4d;
+        color: #fff;
+        padding: 10px 15px;
+        display: block;
+        font-size: 20px;
+        text-transform: uppercase;
+        transition: 0.1s ease-in-out;
+        transition-property: color, background-color;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+    #creator-form div.footer > div:nth-child(2) {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+</style>
+
+<!-- creator -->
+<style>
+.editor {
+    position: relative;
+    top: 30px;
+    text-align: left;
+    margin-left: -10px;
+}
+.nicEdit-main {
+    margin: 0;
+    padding: 4px;
+    line-height: 1.3em;
+}
+.editor .nicEdit-main {width: 735px !important;}
+.footer .nicEdit-main {width: 100% !important;}
+
+#creator-form div.editor > div:nth-child(2) {
+    width: 100% !important;
+    margin: 0 !important;
+}
+#creator-form div.nicEdit-panelContain {
+    position: absolute;
+    top: -25px;
+}
+#creator-form .editor:hover div.nicEdit-panelContain {
+    display: block;
+}
+
+#upload_img {
+    height: 100%;
+    
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.wrapp__info {
+    color: grey;
+    transition: 200ms color;
+    text-align: center;
+    margin: 0 0 10px;
+}
+.wrapp__info .size {
+    font-weight: 600;
+    color: #111;
+}
+.wrapp__info div {
+    margin: 0;
+    line-height: normal;
+}
+.upload_img_container .form-group {padding: 0;margin: 0 0 15px;}
+.upload_img_container input[type=file] {outline:0;opacity:0;pointer-events:none;user-select:none}
+.upload_img_container .label {width:140px;border:2px dashed grey;border-radius:5px;display:block;padding:1.2em;transition:border 300ms ease;cursor:pointer;text-align:center}
+.upload_img_container .label i {display:block;font-size:42px;padding-bottom:16px}
+.upload_img_container .label i, .upload_img_container .label .title {color:grey;transition:200ms color}
+.upload_img_container .label:hover {border:2px solid #000;background: moccasin;}
+.upload_img_container .label:hover i, .upload_img_container .label:hover .title {color:#000}
+
+.submit__wrapper button {
+    color: #555;
+    line-height: normal;
+    width: 183px;
+    margin: auto;
+    border: 2px solid #555;
+    padding: 10px 0;
+    background: transparent;
+}
+.submit__wrapper button:hover {
+    cursor: pointer;
+    background: moccasin;
+}
+
+.input__file {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+}
+
+#remove_image {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: none;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    -webkit-justify-content: flex-end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+    -webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+#remove_image button {
+    display: none;
+    color: #555;
+    line-height: normal;
+    width: 183px;
+    margin: auto;
+    border: 2px solid #555;
+    padding: 10px 0;
+    background: #fff;
+}
+#remove_image:hover button {
+    display: block;
+}
+#remove_image button:hover {
+    cursor: pointer;
+    background: moccasin;
+}
+
+</style>";s:4:"code";s:7602:"use RainLab\Blog\Models\Post;
+use System\Models\File;
+use Illuminate\Support\Facades\Storage;
+
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
+use Barryvdh\Snappy\Facades\SnappyImage as SnappyImage;
+
+function onStart()
+{
+
+    /*$options = array(
+    '--dpi 300',
+    'no-outline',
+    '--image-quality 10',);
+
+    $image = new Image('http://bl.ocks.org/mbostock/raw/7555321/', $options);
+    $image->saveAs('output.png');*/
+
+    $today = date("Ymd_His");
+
+    $html = '
+
+    <!doctype html>
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <link rel="stylesheet"  href="http://localhost/bundles/mybundle/css/pdf.css" />
+            <style>
+                /* тут стили, которые сработают на генерации изображения */
+            </style>
+        </head>
+        <body>
+            <h1>Это тестовый контейнер на русском языке</h1>
+        </body>
+    </html>
+
+    ';
+
+    $html = '<h1>sdfsdfsdf</h1>';
+
+    /* PDF */
+    /*
+    $pdf = App::make('snappy.pdf.wrapper');
+    $pdf->loadHTML($html)->setPaper('a4')->setOrientation('landscape')->setOption('margin-bottom', 0);
+    return $pdf->download('invoice.pdf');*/
+
+    /* IMAGE */
+    // quality 100
+
+    /*
+    SnappyImage::loadHTML($html)
+    ->setOption('width', 1240)
+    ->setOption('height', 876)
+    ->save($today.'.jpg');
+    */
+
+}
+
+function onDownload() {
+
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+        $protocol = 'https://';
+    } else {
+        $protocol = 'http://';
+    }
+
+    $data = post();
+
+    $today = date("Ymd_His");
+
+    $html = '
+        <!doctype html>
+        <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <style type = "text/css">
+
+                #creator font {
+                    line-height: normal;
+                    font-family: Helvetica;
+                }
+                #creator-form div.editor > div:nth-child(1),
+                #creator-form div.footer > div:nth-child(1){
+                    display:none;
+                }
+                #creator-form div.editor > div:nth-child(2),
+                #creator-form div.footer > div:nth-child(2){
+                    border: none !important;
+                }
+                #creator-form div.footer {
+                    margin: 0;
+                    position: relative;
+                    top: -35px;
+                }
+                .nicEdit-main {
+                    width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 18px;
+                }
+                .nicEdit-panelContain {
+                    display:none;
+                }
+                #last-name {
+                    font-size: 70px;
+                    text-transform: uppercase;
+                    font-weight: 700;
+                    padding: 0;
+                    position: relative;
+                    top: -15px;
+                    left: -4px;
+                    margin: 0;
+                    height: 62px;
+                    color: #000;
+                    width: 100%;
+                    border: none;
+                }
+                #name-age {
+                    font-size: 24px;
+                    text-transform: uppercase;
+                    font-weight: 700;
+                    padding: 0;
+                    text-align: left;
+                    font-family: "DejaVu Sans";
+                    position: relative;
+                    top: -2px;
+                    left: 0;
+                    margin: 0;
+                    height: 32px;
+                    color: #000;
+                    width: 100%;
+                    border: 1px solid;
+                    line-height: 30px;
+
+                    border: none;
+                }
+            </style>
+        </head>
+        <body>
+        '.$data['html'].'
+        </body>
+        </html>
+    ';
+
+    SnappyImage::loadHTML($html)->setOption('width', 1240)->setOption('height', 876)->save($_SERVER['DOCUMENT_ROOT']. '/storage/app/media/'.$today.'.jpg');
+
+    return [
+        'data' => $protocol . $_SERVER['HTTP_HOST'].'/storage/app/media/'.$today.'.jpg'
+    ];
+
+}
+
+function onSubmit()
+{
+    $validator = Validator::make(
+        $form = Input::all(), [
+            'image' => 'required|image',
+            //'size' => 'required|integer|min:0|max:500',
+        ]
+    );
+
+    if ($validator->fails()) {
+        throw new ValidationException($validator);
+    }
+
+    $file = (new File())->fromPost($form['image']);
+    
+
+    // 386 * 464
+    // $form['size']
+    $this['path_img'] = $file->getThumb(386, 464);
+
+    return [
+        '#object' => '<pre>'.json_encode($file).'</pre>',
+        //'#dir' => '<pre>'.$this['dir'].'</pre>',
+        '#img-wrapp' => '<div id="img" style="background: url('.$file->getThumb($form['size'], $form['size']).'); width: 180px; height: 180px;"></div>',
+        'src' => '"'.$file->getThumb($form['size'], $form['size']).'"',
+        '#upload__img' => '<img src="'.$file->getThumb($form['size'], $form['size']).'" />'
+    ];
+}
+
+
+function onDelete(){
+    
+    $data = post();
+    
+    $path_img = $data['path_img'];
+    $server_document_root = $_SERVER['DOCUMENT_ROOT'];
+    
+    preg_match_all('/public\/((.*)\/*)\/(.*)\.(jpg|png|jpeg)/', $path_img, $matches, PREG_PATTERN_ORDER);
+    
+    $path_dir = $server_document_root . '/storage/app/uploads/public/' . $matches[1][0] . '/';
+    
+    $value1 = Input::get('value1');
+    
+    $pattern = '/(http|https):\/\/(.*?)\//i';
+    $value1 = preg_replace($pattern, '', $value1);
+    
+    $pattern = '/((http|https):\/\/(.*?)\/)(.*)public\/(\d*)\/(.*)/i';
+    //preg_match_all($pattern, $value1, $matches);
+    
+    //$path = '/home/l/lutsyi1l/skynd.ru/public_html/storage/app/uploads/public/603/';
+    
+    $this::removeDirectory($path_dir);
+    
+       
+    return [
+        //'path_dir' => $path_dir,
+        //'path_dir' => $path_dir,
+        //'totalProjects' => $matches[5], // директория
+        //'path' => $str,
+        'path_img' => $path_img,
+        'server_document_root' => $server_document_root, // /home/l/lutsyi1l/contentim.ru/public_html
+    ];
+}
+
+function removeDirectory($path){
+     // если путь существует и это папка
+    if ( file_exists( $path ) AND is_dir( $path ) ) {
+        // открываем папку
+        $dir = opendir($path);
+        while ( false !== ( $element = readdir( $dir ) ) ) {
+          // удаляем только содержимое папки
+          if ( $element != '.' AND $element != '..' )  {
+            $tmp = $path . '/' . $element;
+            chmod( $tmp, 0777 );
+           // если элемент является папкой, то
+           // удаляем его используя нашу функцию RDir
+            if ( is_dir( $tmp ) ) {
+             $this::removeDirectory( $tmp );
+           // если элемент является файлом, то удаляем файл
+            } else {
+              unlink( $tmp );
+           }
+         }
+        }
+        // закрываем папку
+        closedir($dir);
+        // удаляем саму папку
+        if ( file_exists( $path ) ) {
+         rmdir( $path );
+        }
+    }
+}";s:5:"title";s:25:"Главная _developer";s:3:"url";s:10:"/developer";s:6:"layout";s:3:"dev";s:9:"is_hidden";s:1:"0";s:11:"robot_index";s:7:"noindex";s:12:"robot_follow";s:8:"nofollow";}}

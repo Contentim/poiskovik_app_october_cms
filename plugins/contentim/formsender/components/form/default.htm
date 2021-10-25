@@ -1,0 +1,51 @@
+<h2>Форма обратной связи</h2>
+
+<form
+        data-request="{{ __SELF__ }}::onSend"
+        data-request-flash
+        data-request-success="alert('Письмо отправлено')"
+        id="ivanContactForm">
+
+    data-request-confirm="Давай поиграем?"
+    onsubmit="$(this).request('onSend'); return false;"
+    {{ __SELF__ | page }}
+
+    <div id="{{ __SELF__ }}_forms_flash"></div>
+
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" class="form-control" value="{{ fake.userName}}">
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" class="form-control" value="{{ fake.email}}">
+    </div>
+
+    <div class="form-group">
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="subject" class="form-control" value="{{ fake.creditCardType}}">
+    </div>
+
+    <div class="form-group">
+        <textarea id="msg" name="msg" rows="8" cols="80">{{ fake.text(200) }}</textarea>
+    </div>
+
+    <div class="form-group">recaptcha</div>
+
+    <button type="submit"
+            id="ivanContactSubmitButton"
+            data-attach-loading
+            class="btn btn-default">Submit</button>
+
+</form>
+
+<!-- JavaScript API
+<script>
+    jQuery(document).ready(function(){
+        $.request('onSend');
+    });
+</script>
+-->
+
+
